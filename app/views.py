@@ -44,10 +44,11 @@ def bomAna(request):
     path = BASE_DIR+'/static/check/'
     params = json.loads(request.body)
     baseMaterial = pd.read_excel(
-        BASE_DIR+'/static/material.xlsx', usecols=[4, 5])[1:]
+        BASE_DIR+'/static/material.xlsx', header=1, usecols=[4, 5])
 
-    baseChange = baseMaterial['FName'].str.cat(
-        baseMaterial['FSpecification'], sep='/')
+    baseChange = baseMaterial['*(物料)名称'].str.cat(
+        baseMaterial['(物料)规格型号'], sep='/')
+
     sheets = pd.ExcelFile(path+params['name'])
     res, sheetList, total, hint = [], [], 0, ''
 
