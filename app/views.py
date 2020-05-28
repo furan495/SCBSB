@@ -69,17 +69,13 @@ def bomAna(request):
         else:
             if '电气' in params['name']:
                 electricExcel = pd.read_excel(
-                    path+params['name'], header=3, sheet_name=sheet,  usecols=[0, 1, 2, 5])
+                    path+params['name'], header=4, sheet_name=sheet,  usecols=[0, 1, 2, 5])
                 electric = electricExcel[(electricExcel['类型'] == '市购件')
                                          | (electricExcel['类型'] == '标准件')]
                 total = len(electric)+total
-                for num, name, size in zip(electric['位置/编号'], electric['名称'], electric['型号']):
-                    if pd.isnull(num):
-                        pass
-                    else:
-                        number = num
+                for num, name, size in zip(electric['名称'].index, electric['名称'], electric['型号']):
                     if name+'/'+str(size) not in baseChange.values:
-                        res.append({'sheet': sheet, 'num': number,
+                        res.append({'sheet': sheet, 'num': str(num+6),
                                     'name': name, 'size': size})
             else:
                 hint = '请上传格式正确的BOM'
@@ -93,7 +89,7 @@ def bomAna(request):
     bom = BomAna()
     bom.result = result
     bom.target = params['name']
-    bom.operator = params['name'].split('-')[-3]
+    bom.operator = params['name']
     bom.save()
 
     return JsonResponse({'name': params['name'], 'time': time, 'result': result, 'sheets': sheetList, 'hint': hint})
