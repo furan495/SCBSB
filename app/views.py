@@ -169,8 +169,8 @@ def analyseMaterial(request):
         except:
             material.loc[i, 'stock'] = ''
     material.to_excel(BASE_DIR+'/static/material.xlsx')
-    os.remove(BASE_DIR+'/static/material/'+files[0])
-    os.remove(BASE_DIR+'/static/material/'+files[1])
+    for f in os.listdir(files):
+        os.remove(files+'/'+f)
     res = 'success'
     return JsonResponse({'res': res})
 
