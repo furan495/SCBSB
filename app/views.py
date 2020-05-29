@@ -111,13 +111,18 @@ def bomCheck(request):
 def getMaterials(request):
     try:
         name = ''
-        res = pd.read_excel(BASE_DIR+'/static/material.xlsx')
+        res = pd.read_excel(BASE_DIR+'/static/material.xlsx',
+                            usecols=[1, 2, 3, 4, 5, 6, 7])
         res.fillna('', inplace=True)
         with open(BASE_DIR+'/static/temp.txt', 'r') as f:
             name = f.readline()
         for f in os.listdir(BASE_DIR+'/static/check/'):
             os.remove(BASE_DIR+'/static/check/'+f)
-        return JsonResponse({'res': res.values.tolist(), 'time': '%s年%s月%s日%s点%s分%s秒' % (name[3:7], name[7:9], name[9:11], name[11:13], name[13:15], name[15:17])})
+
+        data = map(lambda obj: {'key': res.values.tolist().index(obj), 'FNumber': obj[0], 'FName': obj[1], 'FSpecification': obj[
+            2], 'FDescription': obj[3], 'FMaterialGroup': obj[4], 'FBaseUnitId': obj[5], 'stock': obj[6]}, res.values.tolist())
+
+        return JsonResponse({'res': list(data), 'time': '%s年%s月%s日%s点%s分%s秒' % (name[3:7], name[7:9], name[9:11], name[11:13], name[13:15], name[15:17])})
     except:
         return JsonResponse({'res': [], 'time': ''})
 
@@ -159,18 +164,18 @@ def analyseMaterial(request):
     stock = pd.read_excel(
         BASE_DIR+'/static/material/'+files[0], usecols=[0, 5])
     stockDict = stock.groupby(['物料编码'])['库存量(主单位)'].sum()
-    material = pd.read_excel(BASE_DIR+'/static/material/'+files[1], usecols=[
-        5, 6, 8, 28, 11, 13, 4, 2])
+    material = pd.read_excel(
+        BASE_DIR+'/static/material/'+files[1], header=1, usecols=[5, 6, 8, 11, 13, 28])
     material = material.dropna(axis=0, how='all')
 
     for i in material.index:
         try:
-            material.loc[i, 'stock'] = stockDict[material.loc[i].FNumber]
+            material.loc[i, 'stock'] = stockDict[material.loc[i]['(物料)编码']]
         except:
             material.loc[i, 'stock'] = ''
     material.to_excel(BASE_DIR+'/static/material.xlsx')
-    for f in os.listdir(files):
-        os.remove(files+'/'+f)
+    for f in files:
+        os.remove(BASE_DIR+'/static/material/'+f)
     res = 'success'
     return JsonResponse({'res': res})
 
