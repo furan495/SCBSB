@@ -44,7 +44,7 @@ def bomAna(request):
     path = BASE_DIR+'/static/check/'
     params = json.loads(request.body)
     baseMaterial = pd.read_excel(
-        BASE_DIR+'/static/material.xlsx', header=1, usecols=[4, 5])
+        BASE_DIR+'/static/material.xlsx', usecols=[2, 3])
 
     baseChange = baseMaterial['*(物料)名称'].str.cat(
         baseMaterial['(物料)规格型号'], sep='/')
@@ -123,7 +123,8 @@ def getMaterials(request):
             2], 'FDescription': obj[3], 'FMaterialGroup': obj[4], 'FBaseUnitId': obj[5], 'stock': obj[6]}, res.values.tolist())
 
         return JsonResponse({'res': list(data), 'time': '%s年%s月%s日%s点%s分%s秒' % (name[3:7], name[7:9], name[9:11], name[11:13], name[13:15], name[15:17])})
-    except:
+    except Exception as e:
+        print(e)
         return JsonResponse({'res': [], 'time': ''})
 
 
